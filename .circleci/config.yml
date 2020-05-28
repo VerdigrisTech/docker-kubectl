@@ -16,13 +16,13 @@ jobs:
           command: |
             export KUBECTL_VERSION=${CIRCLE_TAG:-v1.18.3}
             docker build --build-arg VERSION=${KUBECTL_VERSION} -t verdigristech/kubectl:${KUBECTL_VERSION} .
-            [ -n "${CIRCLE_TAG}" ] && docker tag verdigristech/kubectl:${KUBECTL_VERSION} verdigristech/kubectl:latest
+            ([ -n "${CIRCLE_TAG}" ] && docker tag verdigristech/kubectl:${KUBECTL_VERSION} verdigristech/kubectl:latest) || true
       - run:
           name: Publish to Docker Hub
           command: |
             export KUBECTL_VERSION=${CIRCLE_TAG:-v1.18.3}
             docker push verdigristech/kubectl:${KUBECTL_VERSION}
-            [ -n "${CIRCLE_TAG}" ] && docker push verdigristech/kubectl:latest
+            ([ -n "${CIRCLE_TAG}" ] && docker push verdigristech/kubectl:latest) || true
 
 workflows:
   version: 2
