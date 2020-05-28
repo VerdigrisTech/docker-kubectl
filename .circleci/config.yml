@@ -1,0 +1,22 @@
+version: 2.1
+
+jobs:
+  build_and_publish:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+    working_directory: ~/docker-kubectl
+    steps:
+      - checkout
+      - run:
+          name: Build image
+          command: |
+            KUBECTL_VERSION=$(cat VERSION)
+            docker build --build-arg VERSION=${KUBECTL_VERSION} -t verdigristech/kubectl:${KUBECTL_VERSION} .
+
+workflows:
+  version: 2
+  build_and_publish:
+    jobs:
+      - build_and_publish:
+          context: common
