@@ -9,10 +9,20 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Login to Docker Hub
+          command: echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
+      - run:
           name: Build image
           command: |
-            KUBECTL_VERSION=$(cat VERSION)
+            export KUBECTL_VERSION=${CIRCLE_TAG:-v1.18.3}
             docker build --build-arg VERSION=${KUBECTL_VERSION} -t verdigristech/kubectl:${KUBECTL_VERSION} .
+            [ -n "${CIRCLE_TAG}" ] && docker tag verdigristech/kubectl:${KUBECTL_VERSION} verdigristech/kubectl:latest
+      - run:
+          name: Publish to Docker Hub
+          command: |
+            export KUBECTL_VERSION=${CIRCLE_TAG:-v1.18.3}
+            docker push verdigristech/kubectl:${KUBECTL_VERSION}
+            [ -n "${CIRCLE_TAG}" ] && docker push verdigristech/kubectl:latest
 
 workflows:
   version: 2
@@ -20,3 +30,6 @@ workflows:
     jobs:
       - build_and_publish:
           context: common
+          filters:
+            tags:
+              only: /v\d+(\.\d+)*/
